@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Online (Cloudflare) version of Emma English Studio — see docs/CLOUDFLARE.md.
+  "name": "emma-english-dashboard",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "emma-english-dashboard" }],
+  "observability": { "enabled": true },
+  // Children, progress, stickers, PIN and settings of the online app (lessons come from the build).
+  // ONE-TIME SETUP: create the D1 database "emma-english-db" in the Cloudflare dashboard (or `npx wrangler d1 create emma-english-db`)
+  // and paste its Database ID below. The tables are made by the app on first use. (Local `npm run cf:preview` works with this placeholder.)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "emma-english-db",
+      "database_id": "00000000-0000-0000-0000-000000000000"
+    }
+  ]
+}

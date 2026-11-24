@@ -1,0 +1,40 @@
+# dependencies / build
+node_modules/
+.next/
+out/
+dist/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+next-env.d.ts
+
+# env
+.env
+.env.local
+.env.*.local
+
+# private family data — never commit
+resources/book/**
+!resources/book/README.md
+resources/.cache/
+content/books/
+data/
+*.db
+*.db-journal
+
+# misc
+*.pem
+.vercel
+npm-debug.log*
+.tmp/
+
+# online version (Cloudflare): build output and wrangler's local state. (content/online/ and public/online/ ARE committed.)
+.open-next/
+.wrangler/
+.dev.vars*
+cloudflare-env.d.ts
+
+# OS / editor
+.DS_Store
+Thumbs.db
