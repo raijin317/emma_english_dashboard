@@ -9,6 +9,7 @@ Cùng một mã nguồn chạy được hai bản:
 | Bé học, chơi game, nhận sao / sticker / cúp | ✅ | ✅ |
 | Hồ sơ bé, tiến độ, mã PIN, cài đặt | ✅ (file `data/app.db`) | ✅ (lưu trong **D1**, giữ nguyên qua mỗi lần cập nhật) |
 | Giọng đọc | Giọng tự nhiên (tạo trên máy) hoặc giọng trình duyệt | Giọng tự nhiên **đã tạo ở nhà** hoặc giọng trình duyệt |
+| Tốc độ đọc | ✅ | ✅ (giọng tự nhiên được phát nhanh / chậm hơn tốc độ lúc tạo, cao độ giữ nguyên) |
 
 Bài học, hình và giọng đọc được **làm ở nhà**, xuất ra thư mục dự án, rồi **commit + push** lên GitHub. Cloudflare tự build lại và dùng bản mới.
 

@@ -7,7 +7,7 @@ import { setSoundOn } from "@/lib/client/sfx";
 import type { AppSettings } from "@/lib/types";
 
 export function applySettings(s: AppSettings) {
-  configureSpeech({ engine: s.ttsEngine, voice: s.ttsVoice, voiceName: s.voiceName, childRate: s.childRate });
+  configureSpeech({ engine: s.ttsEngine, voice: s.ttsVoice, voiceName: s.voiceName, childRate: s.childRate, clipRate: s.clipRate });
   setSoundOn(s.soundOn);
 }
 

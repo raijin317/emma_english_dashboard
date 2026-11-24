@@ -20,12 +20,12 @@ export const PATCH = route(async (req) => {
   const set: Record<string, string> = {};
   if (b.ttsEngine === "natural" || b.ttsEngine === "browser") set.ttsEngine = b.ttsEngine;
   if (typeof b.voiceName === "string") set.voiceName = b.voiceName.slice(0, 200);
+  if (b.childRate !== undefined) set.childRate = String(Math.min(1.2, Math.max(0.6, Number(b.childRate) || 0.85)));
   if (typeof b.soundOn === "boolean") set.soundOn = b.soundOn ? "1" : "0";
   if (b.breakMinutes !== undefined) set.breakMinutes = String(Math.min(90, Math.max(5, Number(b.breakMinutes) || 20)));
-  // The natural voice and its speed are chosen at home (the online clips were made with them).
+  // The natural voice is chosen at home (the online clips were made with it); online the clips play at any speed.
   if (!ONLINE) {
     if (typeof b.ttsVoice === "string" && isNaturalVoice(b.ttsVoice)) set.ttsVoice = b.ttsVoice;
-    if (b.childRate !== undefined) set.childRate = String(Math.min(1.2, Math.max(0.6, Number(b.childRate) || 0.85)));
     if (TOPIC_PICTURE_MODES.includes(b.topicPictures as never)) set.topicPictures = b.topicPictures!;
   }
   await family().setSettings(set);

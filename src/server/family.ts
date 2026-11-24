@@ -76,7 +76,7 @@ export type D1Like = { prepare(sql: string): D1Statement; batch(statements: D1St
 /** Family tables of a backup; the online version keeps (and restores) only these. */
 export const FAMILY_TABLES = ["settings", "children", "attempts", "stickers"] as const;
 /** Settings that mean something online (the rest — lesson rules, picture mode, voice choice — come from home). */
-const ONLINE_SETTING_KEYS = ["pinHash", "ttsEngine", "voiceName", "soundOn", "breakMinutes"];
+const ONLINE_SETTING_KEYS = ["pinHash", "ttsEngine", "voiceName", "childRate", "soundOn", "breakMinutes"];
 const COLUMNS: Record<(typeof FAMILY_TABLES)[number], string[]> = {
   settings: ["key", "value"],
   children: ["id", "name", "avatar", "age", "active_book_id", "book_ids", "topic_ids", "daily_goal_minutes", "created_at"],
@@ -85,8 +85,9 @@ const COLUMNS: Record<(typeof FAMILY_TABLES)[number], string[]> = {
 };
 
 /**
- * Online settings: the natural voice is the one the clips were made with at home (and its speed), so every
- * sentence has its clip; without exported clips the browser voice is used.
+ * Online settings: the natural voice is the one the clips were made with at home, so every sentence has its clip;
+ * without exported clips the browser voice is used. The speed is the parent's (default: the clips' own speed) —
+ * the browser plays the clips faster or slower to match it (`clipRate`, see clipPlaybackRate).
  */
 export function onlineSettings(stored: (key: string) => string | null): AppSettings {
   const base = appSettingsFrom(stored);
@@ -96,7 +97,8 @@ export function onlineSettings(stored: (key: string) => string | null): AppSetti
     ...base,
     ttsEngine: voice && base.ttsEngine === "natural" ? "natural" : "browser",
     ttsVoice: voice?.voice ?? base.ttsVoice,
-    childRate: voice?.childRate ?? base.childRate,
+    childRate: stored("childRate") === null && voice ? voice.childRate : base.childRate,
+    clipRate: voice?.childRate,
     topicPictures: "off",
   };
 }

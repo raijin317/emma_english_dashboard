@@ -1,6 +1,6 @@
 "use client";
 
-import { DEFAULT_VOICE, normalizeSpeech, speechSpeed } from "../voices";
+import { DEFAULT_VOICE, clipPlaybackRate, normalizeSpeech, speechSpeed } from "../voices";
 import { speechUnits, type Speakable } from "../speakables";
 import { originalIndex, speechPlan, wordTimeline, type SpeechPart } from "../speechPlan";
 import { ONLINE } from "../mode";
@@ -13,8 +13,10 @@ import { onlineVoiceUrl } from "../assetKeys";
  * - "browser": Web Speech API (fallback when the natural voice is unavailable).
  */
 
-type Settings = { engine: "natural" | "browser"; voice: string; voiceName: string; childRate: number };
+/** clipRate (online): the speed the natural-voice clips were made at; they are played faster/slower to sound at childRate. */
+type Settings = { engine: "natural" | "browser"; voice: string; voiceName: string; childRate: number; clipRate?: number };
 let settings: Settings = { engine: "natural", voice: DEFAULT_VOICE, voiceName: "", childRate: 0.85 };
+const clipRate = () => settings.clipRate ?? settings.childRate;
 let naturalFailures = 0;
 
 export function configureSpeech(s: Partial<Settings>) {
@@ -47,7 +49,7 @@ let ticker: ReturnType<typeof setInterval> | null = null;
 let doneCb: (() => void) | null = null;
 
 export function naturalUrl(text: string, slow = false, voice = settings.voice) {
-  const speed = speechSpeed(settings.childRate, slow);
+  const speed = speechSpeed(clipRate(), slow);
   if (ONLINE) return onlineVoiceUrl(voice, text, speed);
   return `/api/tts?v=${encodeURIComponent(voice)}&s=${speed}&text=${encodeURIComponent(normalizeSpeech(text))}`;
 }
@@ -96,6 +98,13 @@ export function stopSpeaking() {
 function playPart(part: SpeechPart, opts: SpeakOpts, my: number): Promise<HTMLAudioElement | null> {
   return new Promise((resolve) => {
     const a = new Audio(naturalUrl(part.say, !!opts.slow, opts.voice));
+    // Online: a clip made at home at another speed plays faster/slower (same pitch). Home: always 1.
+    const rate = clipPlaybackRate(settings.childRate, clipRate(), !!opts.slow);
+    if (rate !== 1) {
+      a.preservesPitch = true;
+      a.defaultPlaybackRate = rate;
+      a.playbackRate = rate;
+    }
     current = a;
     let settled = false;
     const settle = (ok: boolean) => {
@@ -132,7 +141,8 @@ async function playNaturalFrom(text: string, plan: SpeechPart[], k: number, opts
   if (!a) return "fallback";
   if (k === 0) opts.onStart?.();
   const speed = speechSpeed(settings.childRate, !!opts.slow);
-  if (opts.onBoundary) followPart(a, text, part, speed, opts.onBoundary);
+  // The highlighting follows the clip's own timeline (made at the clip speed); the pause between parts is real time.
+  if (opts.onBoundary) followPart(a, text, part, speechSpeed(clipRate(), !!opts.slow), opts.onBoundary);
   // Fetch the next sentence while this one plays.
   const next = plan[k + 1];
   if (next) void fetch(naturalUrl(next.say, !!opts.slow, opts.voice)).catch(() => {});

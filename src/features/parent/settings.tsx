@@ -230,9 +230,11 @@ export function SettingsPage() {
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <Field
             label={`Speed for children: ${s.childRate.toFixed(2)}`}
-            hint={ONLINE ? "Set in the app at home — the published voice was made at this speed." : "0.85 is a good speed for young learners. The 🐢 button is always slower."}
+            hint={`0.85 is a good speed for young learners. The 🐢 button is always slower.${
+              ONLINE && s.clipRate !== undefined && s.ttsEngine === "natural" ? ` The natural voice was made at ${s.clipRate.toFixed(2)} at home; other speeds play it faster or slower.` : ""
+            }`}
           >
-            <input type="range" min={0.6} max={1.2} step={0.05} value={s.childRate} disabled={ONLINE} onChange={(e) => save({ childRate: Number(e.target.value) })} />
+            <input type="range" min={0.6} max={1.2} step={0.05} value={s.childRate} onChange={(e) => save({ childRate: Number(e.target.value) })} />
           </Field>
           <div className="flex items-end">
             <Button variant="sun" onClick={() => speak(SAMPLE)}>

@@ -120,6 +120,8 @@ export type AppSettings = {
   ttsVoice: string;
   voiceName: string;
   childRate: number;
+  /** Online only: the speed the published natural-voice clips were made at (home). They are played faster/slower to match childRate. */
+  clipRate?: number;
   soundOn: boolean;
   breakMinutes: number;
   hasPin: boolean;

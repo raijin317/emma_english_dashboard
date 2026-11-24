@@ -11,7 +11,7 @@ import { DatabaseSync } from "node:sqlite";
 import { sha1Hex } from "@/lib/sha1";
 import { cropKey, ttsKey } from "@/lib/assetKeys";
 import { PLAN_VERSION, speechPlan } from "@/lib/speechPlan";
-import { normalizeSpeech } from "@/lib/voices";
+import { clipPlaybackRate, normalizeSpeech } from "@/lib/voices";
 import { readWav, wavToMp3 } from "@/server/tts/mp3";
 import { albumStickers, d1Store, type D1Like, type D1Statement } from "@/server/family";
 import { STICKERS } from "@/lib/stickers";
@@ -88,6 +88,18 @@ describe("online version: file names shared by home and online", () => {
   });
 });
 
+describe("online version: speed of the published voice", () => {
+  it("plays clips made at another speed faster or slower, the 🐢 voice too", () => {
+    expect(clipPlaybackRate(0.75, 0.75, false)).toBe(1);
+    expect(clipPlaybackRate(1, 0.75, false)).toBeCloseTo(1 / 0.75, 5);
+    expect(clipPlaybackRate(0.6, 0.75, false)).toBeCloseTo(0.6 / 0.75, 5);
+    // 🐢: speechSpeed(1, slow) = 0.75, speechSpeed(0.75, slow) = 0.56
+    expect(clipPlaybackRate(1, 0.75, true)).toBeCloseTo(0.75 / 0.56, 5);
+    // Out-of-range speeds are clamped like the voice engine does (0.6–1.2).
+    expect(clipPlaybackRate(5, 0.75, false)).toBeCloseTo(1.2 / 0.75, 5);
+  });
+});
+
 describe("online version: voice as MP3", () => {
   it("reads the voice engine's float WAV and 16-bit WAV, and makes a smaller MP3", async () => {
     const sine = Float32Array.from({ length: 24000 }, (_, k) => 0.5 * Math.sin((2 * Math.PI * 440 * k) / 24000));
@@ -114,10 +126,12 @@ describe("online version: family data in D1", () => {
     // No voice published: the browser voice is used.
     published.voice = null;
     expect(await store.settings()).toMatchObject({ ttsEngine: "browser", soundOn: true, breakMinutes: 20, hasPin: false, topicPictures: "off" });
-    // Published: the natural voice and speed are the ones the clips were made with at home, whatever is stored.
+    // Published: the natural voice is the one the clips were made with at home, whatever is stored; the speed starts
+    // at the clips' own speed and the parent can change it (the clips are then played faster/slower).
     published.voice = { voice: "am_puck", childRate: 0.75, clips: 10, missing: 0 };
+    expect(await store.settings()).toMatchObject({ ttsEngine: "natural", ttsVoice: "am_puck", childRate: 0.75, clipRate: 0.75 });
     await store.setSettings({ ttsVoice: "af_sky", childRate: "1.1" });
-    expect(await store.settings()).toMatchObject({ ttsEngine: "natural", ttsVoice: "am_puck", childRate: 0.75 });
+    expect(await store.settings()).toMatchObject({ ttsEngine: "natural", ttsVoice: "am_puck", childRate: 1.1, clipRate: 0.75 });
     await store.setSettings({ ttsEngine: "browser" });
     expect((await store.settings()).ttsEngine).toBe("browser");
     expect(await store.checkPin("1234")).toBe(true); // no PIN yet

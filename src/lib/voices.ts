@@ -18,6 +18,14 @@ export function speechSpeed(childRate: number, slow: boolean) {
   return Math.round((slow ? Math.max(0.55, base * 0.75) : base) * 100) / 100;
 }
 
+/**
+ * How much faster (>1) or slower (<1) to play a natural-voice clip made at `clipRate` so it sounds at `childRate`.
+ * Home: clips are made at the chosen speed (1). Online: the clips made at home are reused at any speed.
+ */
+export function clipPlaybackRate(childRate: number, clipRate: number, slow: boolean) {
+  return speechSpeed(childRate, slow) / speechSpeed(clipRate, slow);
+}
+
 /** Tidies spaces but keeps line breaks (one blank line at most) — they tell the voice where to pause. */
 export function normalizeSpeech(text: string) {
   return text

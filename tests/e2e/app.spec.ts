@@ -20,6 +20,18 @@ test("first visit asks to create a PIN, then opens the parent area", async ({ pa
   await expect(page.getByText("Create a 4-digit parent PIN.")).toBeVisible();
   for (let round = 0; round < 2; round++) for (const d of "2468") await page.getByRole("button", { name: d, exact: true }).click();
   await expect(page.getByRole("heading", { name: /Welcome back/ })).toBeVisible();
+
+  // Child mode locks the parent area: the browser's Back button asks for the PIN again…
+  await page.getByRole("link", { name: /Child mode/ }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await page.goBack();
+  await expect(page.getByText("Parents only! Enter your PIN.")).toBeVisible();
+  for (const d of "2468") await page.getByRole("button", { name: d, exact: true }).click();
+  await expect(page.getByRole("heading", { name: /Welcome back/ })).toBeVisible();
+  // …and so does a parent page typed after any child screen.
+  await page.goto("/learn/stickers");
+  await page.goto("/parent/settings");
+  await expect(page.getByText("Parents only! Enter your PIN.")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
