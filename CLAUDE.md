@@ -58,6 +58,7 @@ A second, **online build** of the same code runs on Cloudflare Workers with read
 - **No `cacheComponents` online** (it hangs page rendering in workerd; `next.config.ts` turns it off). A new dynamic page needs `export const generateStaticParams = static…` from `src/server/onlinePages.ts` (undefined at home: Cache Components rejects an empty list), so it is prerendered online and served from static assets (`open-next.config.ts`). Reading `searchParams` on the server makes a page dynamic — read it in the client (`useSearchParams`, under `<Suspense>`).
 - Runtime folders must not be traced into builds: `outputFileTracingExcludes` in `next.config.ts`, plus `/*turbopackIgnore: true*/` where Turbopack warns ("Dynamic filesystem access causes tracing of the whole project").
 - Check the online build locally with `npm run cf:preview` (workerd + local D1 in `.wrangler/`). Plain `wrangler dev` skips filling the static page cache.
+- Cloudflare builds on **Linux** with npm 10 (`npm clean-install` runs install scripts; npm 11 on Windows skips them): `.npmrc` sets `onnxruntime-node-install-cuda=skip` because onnxruntime-node's CUDA download 404s there. Imports must match file-name case exactly (Linux is case-sensitive).
 
 ## Next.js 16 patterns used here
 - Every API route is wrapped with `route()` from `src/server/api.ts`: it calls `await connection()` **outside** try/catch (so prerendering stops correctly), seeds the demo once, and uses `unstable_rethrow` in the catch.

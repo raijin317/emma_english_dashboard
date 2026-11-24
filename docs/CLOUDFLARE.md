@@ -86,6 +86,7 @@ npm run cf:preview      # build bản online, rồi mở http://127.0.0.1:8787 (
 
 | Hiện tượng | Cách xử lý |
 |---|---|
+| Bước cài thư viện báo `onnxruntime-node … Failed to download the binaries: 404` | File `.npmrc` trong repo đã tắt bước tải bản GPU này (bản online không cần; máy nhà dùng bản CPU có sẵn). Kiểm tra `.npmrc` đã được push. Nếu sau này npm báo không còn nhận dòng đó, vào Worker → **Settings → Build → Build variables** thêm `ONNXRUNTIME_NODE_INSTALL_CUDA` = `skip` |
 | Build trên Cloudflare báo tên Worker không khớp | Project name phải là `emma-english-dashboard` |
 | Deploy báo không tìm thấy database / ID `00000000-…` | Chưa dán **Database ID** thật vào `wrangler.jsonc` (mục A.1) |
 | Trang online báo *"The online database is missing"* | Worker chưa có D1 binding `DB`: kiểm tra `wrangler.jsonc` rồi deploy lại |
