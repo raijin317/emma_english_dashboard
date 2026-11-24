@@ -94,6 +94,8 @@ npm run cf:preview      # build bản online, rồi mở http://127.0.0.1:8787 (
 | Error 1102 | Nâng lên gói Workers Paid (mục C) |
 | Bấm 🔊 mà nghe giọng "robot" | Câu đó chưa có file giọng: đợi giọng ở nhà làm xong → *Prepare the online files* → push |
 | Mất bài mới sau khi push | Chưa bấm *Prepare the online files* trước khi commit |
+| Nhập sách mới xong nhưng GitHub Desktop không thấy thay đổi nào | Bình thường: sách gốc (`content/books/`, `resources/`, `data/`) không bao giờ được đưa lên Git. Bấm **Settings → 🌐 Online version → 📦 Prepare the online files**: các file của sách mới sẽ hiện trong `public/online/` và `content/online/`, rồi commit + push |
+| Sách mới đã lên online nhưng bé không thấy | Trang online → **Children → Edit** → tích sách mới cho bé |
 
 ---
 
